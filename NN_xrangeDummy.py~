@@ -1,6 +1,41 @@
 import random
 
-from base_neuron import Neuron
+class neuron(object):
+    """neuron type takes numbers or other neurons as inputs along with their weights,
+    and either returns a 1 if threshold reached or a 0 if not"""
+    #feed forward only
+    def __init__(self,inputs,weights,threshold):
+        self.threshold=threshold
+        self.inputs=inputs
+        self.weights=weights
+        self.output=False
+
+    def fire(self):
+        """calls input nuerons to fire and returns output value"""
+        summed=0
+        for neuron in range(len(self.inputs)):
+            try:
+                #trys to get output from neuron and sums them * weight
+                summed+=(self.inputs[neuron].fire())*(self.weights[neuron])
+            except AttributeError:
+                #excepts static integers and sums them * weight
+                summed+=(self.inputs[neuron])*(self.weights[neuron])
+
+        e=2.0
+        #sigmoid=1.0/(1.0+(e**-summed))
+        sigmoid=summed
+
+        if sigmoid>=self.threshold:
+            #outputs 1 if threshold exceeded
+            self.output=True
+
+        elif sigmoid<self.threshold:
+            #outputs 0 if threshold not exceeded
+            self.output=False
+
+        #print self.output
+        return self.output
+
 
 class net(object):
     """net type creates a fully connected net of neurons and can run them"""

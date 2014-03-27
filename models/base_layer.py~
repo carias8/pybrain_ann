@@ -1,0 +1,8 @@
+class Layer(object):
+  __init__(self, neurons):
+    self.neurons = neurons
+
+  def fire(self):
+    return map(fire, self.neurons)
+    
+    
