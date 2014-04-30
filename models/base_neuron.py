@@ -1,38 +1,32 @@
 import random
 
+def rand(a, b):
+  return (b-a)*random.random() + a
+
 class Neuron(object):
 
   # neuron type takes other neurons as inputs along with their weights
   # feed forward only
-  def __init__(self, inputs = [], weights = False, threshold = False):
+  def __init__(self, inputs, weights = False):
     self.inputs = inputs    
-    self.weights = ( weights or [random.randint(-1, 1) for x in range( 0, len(inputs) )] )
-    self.threshold = ( threshold or random.randint(0, 2) )
-    self.cached_value = False
-    self.output = 0
+    self.weights = ( weights or [rand(-0.2, 0.2) for _ in inputs] )
+    self.output = self.fire()
+    self.delta = False
+    self.last_changes = [0.0] * len(self.weights)
 
   def activation_function(self, input_sum):
     return input_sum  
-
-  def output_function(self, activation_value):
-    return activation_value
+  
+  # inverse of derivative of activation function
+  def d_activation_function(self, output):
+    return 1
 
   def fire(self):
-    if self.cached_value: return self.cached_value 
-
-    input_values = [neuron.fire() for neuron in self.inputs]
+    input_values = [neuron.output for neuron in self.inputs]
     weighted_inputs = [ x[0]*x[1] for x in zip(input_values, self.weights) ]
     input_sum = sum(weighted_inputs)
 
-    activation_value = self.activation_function(input_sum)
-
-    if activation_value >= self.threshold:
-        self.output = self.output_function(activation_value)
-    else:
-        self.output = 0
-    
-    self.cached_value = self.output
-    return self.output
+    return self.activation_function(input_sum)
 
  
       

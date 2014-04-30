@@ -1,9 +1,0 @@
-
-class InputLayer(Layer):
-  #__init__(self, neurons):
-  #  self.neurons = neurons
-
-  #def fire(self):
-  #  return map(fire, self.neurons)
-    
-  

@@ -1,7 +1,11 @@
 from models.base_neuron import Neuron
+import math
+
 class SigmoidNeuron(Neuron):
 
   def activation_function(self, input_sum): 
-    e = 2.0
-    sigmoid = (1.0 / ( (e**-input_sum) + 1.0 ))
-    return sigmoid 
+    return math.tanh(input_sum) 
+
+  # inverse of derivative of activation function
+  def d_activation_function(self, output):
+    return 1.0 - output**2	
