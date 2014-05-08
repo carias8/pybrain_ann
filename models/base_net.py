@@ -38,51 +38,6 @@ class NeuralNet(object):
         for neuron in layer:
           neuron.output = neuron.fire()   
 
-    
-  def backPropagate(self, targets, N, M):
-    if len(targets) != (len(self.output_layer)):
-      raise ValueError('wrong number of target values')
-
-    # calculate error terms for output
-    for idx, neuron in enumerate(self.output_layer):
-      error = targets[idx] - neuron.output      
-      neuron.delta = neuron.d_activation_function(neuron.output) * error
-      #print(error, targets[idx], neuron.output, neuron.delta)
-
-    # update output weights
-    for neuron in self.output_layer:
-      for idx, input_neuron in enumerate(neuron.inputs):
-        change = neuron.delta * input_neuron.output
-        neuron.weights[idx] = neuron.weights[idx] + N*change + M*neuron.last_changes[idx]
-        neuron.last_changes[idx] = change
-        #print('chaaange', N*change, M*neuron.last_changes[idx])
-
-    last_layer = self.output_layer
-
-    for hidden_layer in self.hidden_layers:
-      # calculate error terms for each hidden
-      for idx, neuron in enumerate(hidden_layer):
-        error = 0.0
-        for last_layer_neuron in last_layer:
-          error = error + last_layer_neuron.delta * last_layer_neuron.weights[idx]
-        neuron.delta = neuron.d_activation_function(neuron.output) * error
-
-
-      # update hidden weights
-      for neuron in hidden_layer:
-        for idx, input_neuron in enumerate(neuron.inputs):
-          change = neuron.delta * input_neuron.output
-          neuron.weights[idx] = neuron.weights[idx] + N*change + M*neuron.last_changes[idx]
-          neuron.last_changes[idx] = change
-      last_layer = hidden_layer
-
-
-    # calculate error
-    error = 0.0
-    for k in range(len(targets)):
-        error = error + 0.5*(targets[k]-self.output_layer[k].output)**2
-    return error
-
 
   def test(self, patterns):
     for p in patterns:
@@ -95,21 +50,6 @@ class NeuralNet(object):
       for neuron in layer:
         print(neuron.weights)
 
-
-  def train(self, patterns, iterations=10000, N=0.5, M=0.1):
-    # N: learning rate
-    # M: momentum factor
-    for i in range(iterations):
-      #print("\n")
-      #self.weights()
-      error = 0.0
-      for p in patterns:
-        inputs = p[0]
-        targets = p[1]
-        self.run(*inputs)
-        error = error + self.backPropagate(targets, N, M)
-      if i % 1000 == 0:
-        print('error %-.5f' % error)
 
 
 

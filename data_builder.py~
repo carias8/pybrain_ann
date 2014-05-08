@@ -1,0 +1,5 @@
+import math
+
+class DataBuilder():
+  def stencil_function(a, b, t):
+    return ( a * math.sin(b + t) )

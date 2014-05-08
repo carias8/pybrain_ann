@@ -19,7 +19,7 @@ pats = [
 
 
 # create a network with two input, two hidden, and one output nodes
-n = NeuralNet(3, [4], 2)
+n = NeuralNet(3, [3], 2)
 #n.weights()
 # train it with some patterns
 trainer = Trainer()
