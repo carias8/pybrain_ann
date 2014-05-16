@@ -9,6 +9,9 @@ def frange(a, b, step):
     yield a
     a += step
 
+def rand(a, b):
+  return (b-a)*random.random() + a
+
 class NeuralNet(object):
   #net type creates a fully connected net of neurons
 
@@ -65,7 +68,7 @@ class NeuralNet(object):
 
     last_layer = self.output_layer
 
-    for hidden_layer in self.hidden_layers:
+    for hidden_layer in reversed(self.hidden_layers):
       # calculate error terms for each hidden
       for idx, neuron in enumerate(hidden_layer):
         error = 0.0
@@ -105,66 +108,58 @@ class NeuralNet(object):
         print(neuron.weights)
 
 
-  def train(self, time, iterations=1000, N=0.5, M=0.0):
+  def train(self, iterations=1000, noise=0.01, N=0.5, M=0.0):
     # N: learning rate
     # M: momentum factor
     for i in xrange(iterations):
       error = 0.0
       alpha = 1.0
       beta = 0.0
-      t = 0.0
-      y = alpha * sin(beta + t)
-      
+
       INCREMENTER = pi/25
       for t in frange(0, 2*pi, INCREMENTER):
-        #get the deltas of the variables that the net output
-        alpha_delta, beta_delta = self.run(t, y)
+        # add noise
+        alpha += rand( -1*abs(noise), abs(noise) )
+        beta += rand( -1*abs(noise), abs(noise) )
 
-        #calculate the new actual values of the variables
-        old_alpha, old_beta = alpha, beta
-        alpha = old_alpha + alpha_delta
-        beta = old_beta + beta_delta
+        # get y
+        y = alpha * sin(beta + (t))
 
-        #calculate the new actual y and ideal y
-        y = alpha * sin(beta + (t + INCREMENTER))
-        target_y = sin(t + INCREMENTER)        
+        # get the deltas of the variables that the net output
+        alpha_delta, beta_delta = self.run(t, y, alpha, beta)
 
-        #calculate the ideal values of the variables
-        # NOTE: I'm not convinced we should be using old alpha/beta
-        target_alpha = target_y / (sin( old_beta + (t + INCREMENTER) ))
-        if (old_alpha == 0) or (abs(old_alpha) < abs(target_y)):
-          target_beta = beta
-        else:  
-          target_beta = asin(target_y / old_alpha) - (t + INCREMENTER)
+        # get target deltas
+        target_alpha_delta = 1 - alpha
+        target_beta_delta = 0 - beta
 
-        #apply this error to the actual variable values to get target
-        target_alpha_delta = target_alpha - alpha
-        target_beta_delta = target_beta - beta
-
-        #set inputs and target
+        # calculate the new actual values of the variables     
+        alpha += alpha_delta
+        beta += beta_delta
+  
+        # set inputs and target
         targets = [target_alpha_delta, target_beta_delta]
 
-        #back propagate
+        # back propagate
         error += self.backPropagate(targets, N, M)
 
       print('error %-.5f' % error)
 
 
 
-##  def train(self, patterns, iterations=10000, N=0.5, M=0.1):
-##    # N: learning rate
-##    # M: momentum factor
-##    for i in range(iterations):
-##      #print("\n")
-##      #self.weights()
-##      error = 0.0
-##      for p in patterns:
-##        inputs = p[0]
-##        targets = p[1]
-##        self.run(*inputs)
-##        error = error + self.backPropagate(targets, N, M)
-##      if i % 1000 == 0:
-##        print('error %-.5f' % error)
+  def trainpoop(self, patterns, iterations=10000, N=0.5, M=0.0):
+    # N: learning rate
+    # M: momentum factor
+    for i in range(iterations):
+      #print("\n")
+      #self.weights()
+      error = 0.0
+      for p in patterns:
+        inputs = p[0]
+        targets = p[1]
+        self.run(*inputs)
+        error = error + self.backPropagate(targets, N, M)
+      if i % 1000 == 0:
+        print('error %-.5f' % error)
         
 
 
