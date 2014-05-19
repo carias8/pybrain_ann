@@ -9,9 +9,9 @@ patterns = [
 
 
 # create a network with two input, two hidden, and one output nodes
-n = NeuralNet(4, [5, 4], 2)
+n = NeuralNet(2, [5, 4], 2)
 #n.weights()
 # train it with some patterns
 n.train()
 # test it
-#n.weights()
+n.test(10)

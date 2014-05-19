@@ -92,26 +92,37 @@ class NeuralNet(object):
         error = error + 0.5*(targets[k]-self.output_layer[k].output)**2
     return error
 
-
-  def test(self, time):
-    for t in xrange(time):
-      out_alpha_delta=self.output_layer[0].fire()
-      out_beta_delta=self.output_layer[1].fire()
-      out_y=1.5-out_alpha_delta*sin(1.5-out_beta_delta+t)
-      print(sin(t+1), 'y -> deltas', self.run(t,out_y))
-
   def weights(self):
     for idx, layer in enumerate(self.layers()):
       if idx == 0: continue
       print('layer ' + str(idx))
       for neuron in layer:
-        print(neuron.weights)
+        print(neuron.weights())
 
 
-  def train(self, iterations=1000, noise=0.01, N=0.5, M=0.0):
-    # N: learning rate
-    # M: momentum factor
-    for i in xrange(iterations):
+  def train(self, iterations=10000, noise=0.001, N=0.5, M=0.1):
+    patterns = []
+    DATA_POINT_PER_T = 100
+    STD_DEV_FOR_DISTRIBUTION = 0.2
+    INCREMENTER = pi/25
+    for t in frange(0, 2*pi, INCREMENTER):
+      for i in range(DATA_POINT_PER_T):
+        alpha = random.gauss(1.0, STD_DEV_FOR_DISTRIBUTION)
+        beta = random.gauss(0.0, STD_DEV_FOR_DISTRIBUTION)
+        y = alpha * sin(beta + (t))
+        target_alpha_delta = 1 - alpha
+        target_beta_delta = 0 - beta
+        patterns.append([ [t, y], [target_alpha_delta, target_beta_delta] ])
+
+    for pattern in patterns:
+      inputs = pattern[0]
+      targets = pattern[1]
+      self.run(*inputs)
+      print self.backPropagate(targets, N, M)
+      
+     
+  def test(self, iterations = 1, noise = 0.01):
+    for i in range(iterations):
       error = 0.0
       alpha = 1.0
       beta = 0.0
@@ -126,7 +137,7 @@ class NeuralNet(object):
         y = alpha * sin(beta + (t))
 
         # get the deltas of the variables that the net output
-        alpha_delta, beta_delta = self.run(t, y, alpha, beta)
+        alpha_delta, beta_delta = self.run(t, y)
 
         # get target deltas
         target_alpha_delta = 1 - alpha
@@ -140,27 +151,9 @@ class NeuralNet(object):
         targets = [target_alpha_delta, target_beta_delta]
 
         # back propagate
-        error += self.backPropagate(targets, N, M)
+        error += abs(target_alpha_delta - alpha_delta) + abs(target_beta_delta - beta_delta)
 
       print('error %-.5f' % error)
-
-
-
-  def trainpoop(self, patterns, iterations=10000, N=0.5, M=0.0):
-    # N: learning rate
-    # M: momentum factor
-    for i in range(iterations):
-      #print("\n")
-      #self.weights()
-      error = 0.0
-      for p in patterns:
-        inputs = p[0]
-        targets = p[1]
-        self.run(*inputs)
-        error = error + self.backPropagate(targets, N, M)
-      if i % 1000 == 0:
-        print('error %-.5f' % error)
-        
 
 
 
